@@ -49,9 +49,35 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
 import com.prochy.odesliandroid.R
+import com.prochy.odesliandroid.utils.MusicProviders.Companion.getLabelFromService
 
 class Utils {
     companion object {
+        @Composable
+        fun SongInfoFromData(
+            songData: OdesliData,
+            service: String,
+            element: @Composable () -> Unit = {},
+        ) {
+            val entriesData = getEntriesDataFor(songData, service)
+            val thumbnail = entriesData?.thumbnailUrl
+            val title = entriesData?.title
+            val artist = entriesData?.artistName
+            val serviceLabel = getLabelFromService(service)
+            val link = getLinkForPlatform(songData, service)
+            val type = songData.entitiesByUniqueId[songData.entitiesByUniqueId.keys.first()]?.type ?: ""
+
+            SongInfo(
+                thumbnail = thumbnail.toString(),
+                title = title.toString(),
+                artist = artist.toString(),
+                service = serviceLabel.toString(),
+                link = link.toString(),
+                odesliType = type,
+                element = element,
+            )
+        }
+
         @Composable
         fun SongInfo(
             thumbnail: String,
@@ -259,6 +285,28 @@ class Utils {
             val browserIntent =
                 Intent(Intent.ACTION_VIEW, Uri.parse(link))
             startActivity(context, browserIntent, null)
+        }
+
+        fun getEntriesDataFor(songData: OdesliData, service: String) : EntitiesData? {
+            val matchingData = songData.entitiesByUniqueId[service]
+            if(matchingData != null) {
+                return matchingData
+            }
+            if(songData.entitiesByUniqueId.isNotEmpty()) {
+                return songData.entitiesByUniqueId[songData.entitiesByUniqueId.keys.first()]
+            }
+            return null
+        }
+
+        fun getLinkForPlatform(data: OdesliData, platform: String): String? {
+            if(platform.equals(MusicProviders.SongLink.service)) {
+                return data.pageUrl
+            }
+            val platformSpecificLink = data.linksByPlatform[platform];
+            if(platformSpecificLink == null) {
+                return null
+            }
+            return platformSpecificLink.url
         }
 
         fun getMusicData(link: String, context: Context, callback: (OdesliData) -> Unit) {

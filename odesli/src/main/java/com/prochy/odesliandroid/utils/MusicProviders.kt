@@ -5,6 +5,7 @@ import androidx.annotation.Keep
 // Enum class representing different music services
 @Keep
 enum class MusicProviders(val label: String, val service: String) {
+    SongLink("SongLink", "SONG_LINK"),
     AmazonMusic("Amazon Music", "amazonMusic"),
     AmazonStore("Amazon Appstore", "amazonStore"),
     Anghami("Anghami", "anghami"),

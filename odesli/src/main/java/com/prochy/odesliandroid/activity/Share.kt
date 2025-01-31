@@ -125,7 +125,8 @@ class Share : ComponentActivity() {
                     ).show()
                     finish()
                 }
-                val platformLink = data.linksByPlatform[service]?.url
+
+                val platformLink = Utils.getLinkForPlatform(data, service)
                 if (!platformLink.isNullOrBlank()) {
                     val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
                     val clip = ClipData.newPlainText("Link", platformLink)
@@ -326,19 +327,10 @@ fun ShareActivityLayout(receivedLink: String) {
                 }
 
                 val musicServices = MusicProviders.entries.map { it.service }
-                val thumbnail = receivedData.value.entitiesByUniqueId[outputService]?.thumbnailUrl
-                val title = receivedData.value.entitiesByUniqueId[outputService]?.title
-                val artist = receivedData.value.entitiesByUniqueId[outputService]?.artistName
-                val service = getLabelFromService(outputService)
-                val link = receivedData.value.linksByPlatform[outputService]?.url
-                val type = receivedData.value.entitiesByUniqueId[receivedData.value.entitiesByUniqueId.keys.first()]?.type ?: ""
-                Utils.SongInfo(
-                    thumbnail = thumbnail.toString(),
-                    title = title.toString(),
-                    artist = artist.toString(),
-                    service = service.toString(),
-                    link = link.toString(),
-                    odesliType = type,
+
+                Utils.SongInfoFromData(
+                    receivedData.value,
+                    outputService,
                     element = {
                         DynamicSelectTextFieldPopUp(
                             modifier = Modifier.width(350.dp),
@@ -351,6 +343,7 @@ fun ShareActivityLayout(receivedLink: String) {
                         )
                     }
                 )
+
             }
         }
     }

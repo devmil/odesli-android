@@ -339,21 +339,7 @@ fun OdesliLayout() {
                                 strokeCap = StrokeCap.Round
                             )
                         if (receivedLinks) {
-                            val thumbnail = songData.entitiesByUniqueId[outputService]?.thumbnailUrl
-                            val title = songData.entitiesByUniqueId[outputService]?.title
-                            val artist = songData.entitiesByUniqueId[outputService]?.artistName
-                            val service = getLabelFromService(outputService)
-                            val link = songData.linksByPlatform[outputService]?.url
-                            val type = songData.entitiesByUniqueId[songData.entitiesByUniqueId.keys.first()]?.type ?: ""
-
-                            Utils.SongInfo(
-                                thumbnail = thumbnail.toString(),
-                                title = title.toString(),
-                                artist = artist.toString(),
-                                service = service.toString(),
-                                link = link.toString(),
-                                odesliType = type
-                            )
+                            Utils.SongInfoFromData(songData, outputService)
                         }
                     }
 
