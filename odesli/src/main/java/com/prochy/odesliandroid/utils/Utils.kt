@@ -53,6 +53,9 @@ import com.prochy.odesliandroid.utils.MusicProviders.Companion.getLabelFromServi
 
 class Utils {
     companion object {
+
+        val fallbackServices = listOf(MusicProviders.Spotify, MusicProviders.AppleMusic, MusicProviders.Deezer)
+
         @Composable
         fun SongInfoFromData(
             songData: OdesliData,
@@ -291,6 +294,12 @@ class Utils {
             val matchingData = songData.entitiesByUniqueId[service]
             if(matchingData != null) {
                 return matchingData
+            }
+            for (fallbackService in fallbackServices) {
+                val potentialFallbackData = songData.entitiesByUniqueId[fallbackService.service]
+                if(potentialFallbackData != null) {
+                    return potentialFallbackData
+                }
             }
             if(songData.entitiesByUniqueId.isNotEmpty()) {
                 return songData.entitiesByUniqueId[songData.entitiesByUniqueId.keys.first()]
