@@ -54,8 +54,15 @@ import com.prochy.odesliandroid.utils.MusicProviders.Companion.getLabelFromServi
 class Utils {
     companion object {
 
-        val fallbackServices = listOf(MusicProviders.Spotify, MusicProviders.AppleMusic, MusicProviders.Deezer)
+        /// prioritized list of music providers that get used if the selected music provider doesn't have any metadata
+        private val fallbackMusicProviders = listOf(
+            MusicProviders.Spotify,
+            MusicProviders.AppleMusic,
+            MusicProviders.YoutubeMusic,
+            MusicProviders.Deezer,
+        )
 
+        /// adds song metadata extracted from the given [songData] for the given [service]
         @Composable
         fun SongInfoFromData(
             songData: OdesliData,
@@ -67,7 +74,7 @@ class Utils {
             val title = entriesData?.title
             val artist = entriesData?.artistName
             val serviceLabel = getLabelFromService(service)
-            val link = getLinkForPlatform(songData, service)
+            val link = getLinkForService(songData, service)
             val type = songData.entitiesByUniqueId[songData.entitiesByUniqueId.keys.first()]?.type ?: ""
 
             SongInfo(
@@ -290,13 +297,15 @@ class Utils {
             startActivity(context, browserIntent, null)
         }
 
-        fun getEntriesDataFor(songData: OdesliData, service: String) : EntitiesData? {
+        private fun getEntriesDataFor(songData: OdesliData, service: String) : EntitiesData? {
             val matchingData = songData.entitiesByUniqueId[service]
             if(matchingData != null) {
                 return matchingData
             }
-            for (fallbackService in fallbackServices) {
-                val potentialFallbackData = songData.entitiesByUniqueId[fallbackService.service]
+            // if [service] doesn't have metadata then go through the fallbackMusicProviders
+            // and use the first one that has metadata
+            for (fallbackMusicProvider in fallbackMusicProviders) {
+                val potentialFallbackData = songData.entitiesByUniqueId[fallbackMusicProvider.service]
                 if(potentialFallbackData != null) {
                     return potentialFallbackData
                 }
@@ -307,15 +316,13 @@ class Utils {
             return null
         }
 
-        fun getLinkForPlatform(data: OdesliData, platform: String): String? {
-            if(platform.equals(MusicProviders.SongLink.service)) {
+        fun getLinkForService(data: OdesliData, service: String): String? {
+            // if the selected service is "SongLink" then we return the SongLink URL
+            if(service == MusicProviders.SongLink.service) {
                 return data.pageUrl
             }
-            val platformSpecificLink = data.linksByPlatform[platform];
-            if(platformSpecificLink == null) {
-                return null
-            }
-            return platformSpecificLink.url
+            val serviceSpecificLink = data.linksByPlatform[service] ?: return null
+            return serviceSpecificLink.url
         }
 
         fun getMusicData(link: String, context: Context, callback: (OdesliData) -> Unit) {

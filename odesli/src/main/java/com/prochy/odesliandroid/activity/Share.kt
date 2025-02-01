@@ -126,10 +126,10 @@ class Share : ComponentActivity() {
                     finish()
                 }
 
-                val platformLink = Utils.getLinkForPlatform(data, service)
-                if (!platformLink.isNullOrBlank()) {
+                val serviceLink = Utils.getLinkForService(data, service)
+                if (!serviceLink.isNullOrBlank()) {
                     val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-                    val clip = ClipData.newPlainText("Link", platformLink)
+                    val clip = ClipData.newPlainText("Link", serviceLink)
                     clipboard.setPrimaryClip(clip)
                     finish()
                 } else {
